@@ -7,7 +7,6 @@ from eva.assistant import EvaAssistant
 
 load_dotenv()
 
-
 debug = os.getenv('DEBUG', 'False').lower() in ('true', 'yes', '1')
 logging.basicConfig(level=logging.DEBUG if debug else logging.WARNING)
 

@@ -1,4 +1,4 @@
-# EVA – Enhanced Virtual Assistant
+# E.V.A – Enhanced Virtual Assistant
 
 EVA (Enhanced Virtual Assistant) is a Python-based personal AI assistant inspired by Jarvis from _Iron Man_.  
 It combines wit, charm, and intelligence to help you manage tasks, run automations, and keep you entertained.
@@ -32,7 +32,7 @@ EVA/
 
 ## ⚙️ Setup Instructions
 
-EVA uses [uv](https://docs.astral.sh/uv/) as its package manager.
+E.V.A uses [uv](https://docs.astral.sh/uv/) as its package manager.
 
 ### 1. Install uv
 
