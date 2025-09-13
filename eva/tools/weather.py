@@ -17,9 +17,14 @@ def get_weather(city: str, state: str) -> str:
         city (str): City to get weather forecast
         state (str): Regional state
     """
+
+    api_key = os.getenv('WEATHER_API_KEY', '').strip()
+
+    if api_key == '':
+        return 'Weather API is not activated. Configure it by setting WEATHER_API_KEY environment variable.'
    
     query_params = {
-        'key': os.getenv('WEATHER_API_KEY', ''),
+        'key': api_key,
         'fields': 'temp_c,wind_kph',
         'q': ' '.join((city, state,)),
     }

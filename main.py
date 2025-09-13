@@ -10,7 +10,8 @@ load_dotenv()
 debug = os.getenv('DEBUG', 'False').lower() in ('true', 'yes', '1')
 logging.basicConfig(level=logging.DEBUG if debug else logging.WARNING)
 
-assistant = EvaAssistant()
+model_name = os.getenv('MODEL_NAME', 'gpt-4o-mini')
+assistant = EvaAssistant(model_name)
 
 
 def send_assistant_message(message: str):

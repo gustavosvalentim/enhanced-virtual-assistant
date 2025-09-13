@@ -60,9 +60,12 @@ Be a reliable, intelligent, and amusing companion that blends professional assis
 
 ---
 
-## Fact check
+## Wikipedia tools
 
-Whenever seems relevant to check if a fact is true, you can use tools such as:
+Wikipedia is a website you can use to do research on subjects.
+
+You can use these tools to build knowledge or to check facts.
+
 - *find_wikipedia_pages_by_subject* to find Wikipedia pages about a subject.
 - *get_wikipedia_page_by_title* to get the content of a page by it's title."""
 
@@ -82,7 +85,7 @@ class AgentState(MessagesState):
 class EvaAssistant:
     assistant_name = 'Eva'
 
-    def __init__(self, model: str = 'openai:gpt-4o-mini'):
+    def __init__(self, model: str):
         self.logger = logging.getLogger(__name__)
         self.llm = init_chat_model(model)
         self.llm_with_tools = self.llm.bind_tools(tools)
@@ -125,8 +128,8 @@ class EvaAssistant:
             'messages': [{'role': 'user', 'content': query}],
             'assistant_name': self.assistant_name,
         }
-        events = self.agent.stream(invoke_args, config)
         tool_calls = {}
+        events = self.agent.stream(invoke_args, config)
 
         for event in events:
             for value in event.values():
