@@ -22,12 +22,8 @@ It combines wit, charm, and intelligence to help you manage tasks, run automatio
 EVA/
 ├── main.py              # Entry point of the assistant
 ├── eva/                 # Core EVA package
-│   ├── **init**.py
 │   ├── assistant.py     # Core assistant logic
 │   ├── tools/           # Tool integrations (calendar, email, etc.)
-│   ├── memory/          # Context & user memory handling
-│   └── utils/           # Helper functions
-├── requirements.txt     # Dependencies (if not using uv.lock)
 └── README.md            # Documentation
 
 ```
@@ -97,7 +93,6 @@ Create a `.env` file in the project root:
 
 ```
 OPENAI_API_KEY=your_api_key_here
-EVA_MODE=chat  # or 'voice'
 ```
 
 ---
