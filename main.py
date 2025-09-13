@@ -3,6 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from eva.assistant import EvaAssistant
+from eva.audio import text_to_speech
 
 
 load_dotenv()
@@ -16,6 +17,7 @@ assistant = EvaAssistant(model_name)
 
 def send_assistant_message(message: str):
     print(f'{assistant.assistant_name}: {message}')
+    text_to_speech(message)
 
 
 def main():

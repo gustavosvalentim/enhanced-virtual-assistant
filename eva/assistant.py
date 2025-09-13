@@ -4,6 +4,7 @@ from typing import Generator
 from langchain.chat_models import init_chat_model
 from langchain_core.runnables import Runnable
 from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -93,8 +94,18 @@ class EvaAssistant:
         self.agent = self._create_agent()
 
     def agent_node(self, state: AgentState) -> str:
-        messages = [{'role': 'system', 'content': system_prompt}] + state.get('messages', [])
-        response = self.llm_with_tools.invoke(messages)
+        system_prompt_template = ChatPromptTemplate([
+            {'role': 'system', 'content': system_prompt},
+            {'role': 'ai', 'content': '{chat_history}'},
+            {'role': 'user', 'content': '{message}'}
+        ])
+        messages = state.get('messages', [])
+        prompt = system_prompt_template.invoke({
+            'assistant_name': self.assistant_name,
+            'chat_history': messages[:len(messages)-1],
+            'message': messages[-1],
+        })
+        response = self.llm_with_tools.invoke(prompt)
         return {'messages': [response]}
 
     def _create_agent(self) -> Runnable:
@@ -126,7 +137,6 @@ class EvaAssistant:
         }
         invoke_args = {
             'messages': [{'role': 'user', 'content': query}],
-            'assistant_name': self.assistant_name,
         }
         tool_calls = {}
         events = self.agent.stream(invoke_args, config)
