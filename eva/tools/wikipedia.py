@@ -1,4 +1,5 @@
 import logging
+
 from langchain_core.tools import tool
 from wikipediaapi import Wikipedia
 
@@ -45,11 +46,3 @@ def get_wikipedia_page_by_title(page_title: str) -> str:
     return (f'Page title: {page.title}'
             f'URL: {page.fullurl}'
             f'Text: {page.text}')
-
-
-if __name__ == '__main__':
-    pages = find_wikipedia_pages_by_subject.invoke('python')
-    content = get_wikipedia_page_by_title.invoke('Python (Programming language)')
-
-    # print(pages)
-    # print(content)

@@ -8,12 +8,12 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from jarvis.tools.wikipedia import (
+from eva.tools.wikipedia import (
     find_wikipedia_pages_by_subject,
     get_wikipedia_page_by_title
 )
 
-from jarvis.tools.filesystem import (
+from eva.tools.filesystem import (
     write_file,
     read_file
 )
@@ -23,6 +23,8 @@ system_prompt = """# AI Personal Assistant Prompt (Jarvis-Inspired)
 
 You are a personal AI assistant inspired by *Jarvis* from Iron Man.  
 Your personality is witty, charming, and slightly sarcastic, but always respectful and supportive.  
+
+Your name is {assistant_name}
 
 ---
 
@@ -76,7 +78,8 @@ class AgentState(MessagesState):
     pass
 
 
-class JarvisAgent:
+class EvaAssistant:
+    assistant_name = 'Eva'
 
     def __init__(self, model: str = 'openai:gpt-4o-mini'):
         self.logger = logging.getLogger(__name__)
@@ -119,6 +122,7 @@ class JarvisAgent:
         }
         invoke_args = {
             'messages': [{'role': 'user', 'content': query}],
+            'assistant_name': self.assistant_name,
         }
         events = self.agent.stream(invoke_args, config)
         tool_calls = {}

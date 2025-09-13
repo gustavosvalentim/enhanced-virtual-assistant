@@ -1,10 +1,10 @@
+import logging
 import os
 
-from pathlib import Path
 from langchain.tools import tool
 
 
-BASE_DIR = Path(os.getcwd())
+logger = logging.getLogger(__file__)
 
 
 @tool
@@ -16,9 +16,12 @@ def write_file(filepath: str, content: str) -> str:
         content (str): Content to be written
     """
 
-    with open(BASE_DIR / filepath, 'a+') as buf:
+    logger.debug(f'Writing to file {filepath}')
+
+    with open(filepath, 'a+') as buf:
         buf.write(content)
-    return f'Wrote to file at {BASE_DIR / filepath}'
+
+    return f'File {filepath} was written successfully'
 
 
 @tool
@@ -29,5 +32,10 @@ def read_file(filepath: str) -> str:
         filepath (str): Path of the file
     """
 
-    with open(BASE_DIR / filepath, 'r') as buf:
+    logger.debug(f'Reading from file {filepath}')
+
+    if not os.path.exists(filepath):
+        return f'File {filepath} does not exist'
+
+    with open(filepath, 'r') as buf:
         return buf.read()

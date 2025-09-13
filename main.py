@@ -2,34 +2,45 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from jarvis.agent import JarvisAgent
+from eva.assistant import EvaAssistant
 
 
 load_dotenv()
 
+
 debug = os.getenv('DEBUG', 'False').lower() in ('true', 'yes', '1')
 logging.basicConfig(level=logging.DEBUG if debug else logging.WARNING)
 
+assistant = EvaAssistant()
+
+
+def send_assistant_message(message: str):
+    print(f'{assistant.assistant_name}: {message}')
+
 
 def main():
-    agent = JarvisAgent()
+    print('''
+=================
+==    E.V.A    ==
+=================
 
-    print("Jarvis: How can I assist you? (type 'exit' to quit)")
+type "exit" or press CTRL+C to quit
+''')
 
     while True:
         try:
             query = input('You: ')
         except KeyboardInterrupt:
             print('\n')
-            print('Jarvis: Goodbye!')
+            send_assistant_message('Goodbye!')
             break
 
         if query.lower().strip() == 'exit':
-            print('Jarvis: Goodbye!')
+            send_assistant_message('Goodbye!')
             break
 
-        for message in agent.inference(query):
-            print('Jarvis:', message)
+        for message in assistant.inference(query):
+            send_assistant_message(message)
 
 if __name__ == '__main__':
     main()
