@@ -95,6 +95,22 @@ Create a `.env` file in the project root:
 OPENAI_API_KEY=your_api_key_here
 ```
 
+## Enabling TTS
+
+On your `.env` add the following variable:
+
+```
+ENABLE_TTS=True
+```
+
+Download a voice sample for `piper-tts`
+
+```sh
+python3 -m piper.download_voices en_US-amy-medium
+mkdir voices
+mv en_US-amy-medium* voices/
+```
+
 ---
 
 ## 🛠 Adding Tools
