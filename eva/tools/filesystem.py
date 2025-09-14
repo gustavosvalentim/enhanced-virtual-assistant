@@ -9,7 +9,7 @@ logger = logging.getLogger(__file__)
 
 @tool
 def write_file(filepath: str, content: str) -> str:
-    """Writes the content to a file. 
+    """Writes the content to a file at the filepath. 
     
     Parameters:
         filepath (str): Path to the file

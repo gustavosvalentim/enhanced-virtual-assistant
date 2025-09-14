@@ -103,7 +103,7 @@ class EvaAssistant:
         prompt = system_prompt_template.invoke({
             'assistant_name': self.assistant_name,
             'chat_history': messages[:len(messages)-1],
-            'message': messages[-1],
+            'message': messages[-1].content,
         })
         response = self.llm_with_tools.invoke(prompt)
         return {'messages': [response]}

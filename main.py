@@ -9,7 +9,7 @@ from eva.audio import text_to_speech
 load_dotenv()
 
 debug = os.getenv('DEBUG', 'False').lower() in ('true', 'yes', '1')
-logging.basicConfig(level=logging.DEBUG if debug else logging.WARNING)
+logging.basicConfig(level=logging.DEBUG if debug else logging.ERROR)
 
 model_name = os.getenv('MODEL_NAME', 'gpt-4o-mini')
 assistant = EvaAssistant(model_name)
