@@ -103,12 +103,10 @@ On your `.env` add the following variable:
 ENABLE_TTS=True
 ```
 
-Download a voice sample for `piper-tts`
+Download a voice sample for `piper-tts`. You can find the voices on [huggingface.co/rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices/tree/main).
 
 ```sh
-python3 -m piper.download_voices en_US-amy-medium
-mkdir voices
-mv en_US-amy-medium* voices/
+python -m piper.download_voices $VOICE_ID
 ```
 
 ---
