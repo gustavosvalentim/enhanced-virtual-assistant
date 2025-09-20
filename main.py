@@ -2,7 +2,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from eva.assistant import EvaAssistant
+from eva.assistant import EvaAssistant, display_graph
 from eva.tts import TextToSpeech, TextToSpeechConfiguration
 
 
@@ -51,4 +51,5 @@ type "exit" or press CTRL+C to quit
             send_assistant_message(message)
 
 if __name__ == '__main__':
-    main()
+    # main()
+    display_graph(assistant)

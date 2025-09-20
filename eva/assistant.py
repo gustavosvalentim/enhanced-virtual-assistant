@@ -1,11 +1,12 @@
 import logging
-from typing import Generator, TypedDict
+from typing import Generator, List, TypedDict
 from langchain.chat_models import init_chat_model
 from langchain_core.runnables import Runnable
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage, BaseMessage
+from langchain_core.messages.utils import trim_messages, count_tokens_approximately
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph import StateGraph, MessagesState
+from langgraph.graph import StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import END
 from eva.prompts import load_prompt
@@ -28,9 +29,11 @@ tools = [
 ]
 
 
-class AgentState(MessagesState):
+class AgentState(TypedDict):
+    messages: List[BaseMessage]
     reviewer_approved: bool
     reviewer_feedback: str
+    __next__: str
 
 
 class ReviewerResult(TypedDict):
@@ -149,3 +152,10 @@ class EvaAssistant:
                                                .replace('\n', ' ')
                                                .replace('\r', ''))
                         yield f'Output from {tool_name} - {limited_tool_output}'
+
+
+def display_graph(assistant: EvaAssistant):
+    try:
+        print(assistant.agent.get_graph().draw_mermaid())
+    except:
+        pass
