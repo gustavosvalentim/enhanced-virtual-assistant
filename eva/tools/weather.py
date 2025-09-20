@@ -16,6 +16,9 @@ def get_weather(city: str, state: str) -> str:
     Parameters:
         city (str): City to get weather forecast
         state (str): Regional state
+
+    Returns:
+        str: The temperature and wind speed
     """
 
     api_key = os.getenv('WEATHER_API_KEY', '').strip()

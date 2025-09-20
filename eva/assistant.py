@@ -1,5 +1,5 @@
 import logging
-from typing import Generator
+from typing import Generator, TypedDict
 from langchain.chat_models import init_chat_model
 from langchain_core.runnables import Runnable
 from langchain_core.messages import AIMessage, ToolMessage
@@ -7,6 +7,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.graph import END
+from eva.prompts import load_prompt
 from eva.tools.wikipedia import (
     find_wikipedia_pages_by_subject,
     get_wikipedia_page_by_title
@@ -16,10 +18,6 @@ from eva.tools.filesystem import (
     read_file
 )
 from eva.tools.weather import get_weather
-
-
-with open('prompts/system_prompt.txt', 'r') as pb:
-    system_prompt = pb.read()
 
 tools = [
     find_wikipedia_pages_by_subject,
@@ -31,7 +29,13 @@ tools = [
 
 
 class AgentState(MessagesState):
-    pass
+    reviewer_approved: bool
+    reviewer_feedback: str
+
+
+class ReviewerResult(TypedDict):
+    approved: bool
+    reason: str
 
 
 class EvaAssistant:
@@ -39,21 +43,40 @@ class EvaAssistant:
 
     def __init__(self, model: str):
         self.logger = logging.getLogger(__name__)
-        self.llm = init_chat_model(model)
-        self.llm_with_tools = self.llm.bind_tools(tools)
+        self.model = model
         self.checkpointer = InMemorySaver()
         self.agent = self._create_agent()
 
-    def agent_node(self, state: AgentState) -> str:
+    def agent_node(self, state: AgentState) -> AgentState:
         chat_template = ChatPromptTemplate([
-            {'role': 'system', 'content': system_prompt},
+            {'role': 'system', 'content': load_prompt('system_prompt')},
         ])
         prompt = chat_template.invoke({
             'assistant_name': self.assistant_name,
         })
         messages = prompt.to_messages() + state['messages']
-        response = self.llm_with_tools.invoke(messages)
+        llm = init_chat_model(self.model)
+        llm_with_tools = llm.bind_tools(tools)
+        response = llm_with_tools.invoke(messages)
         return {'messages': [response]}
+
+    def reviewer_node(self, state: AgentState) -> AgentState:
+        last_message = state['messages'][-1]
+        llm = init_chat_model(self.model, temperature=0.2)
+        reviewer_prompt = load_prompt('reviewer_prompt').format(
+            agent_instructions=load_prompt('system_prompt').format(
+                assistant_name=self.assistant_name,
+            ),
+            chat_history=state['messages'][:-1],
+            ai_message=last_message.content,
+        )
+        response = llm.with_structured_output(ReviewerResult).invoke(reviewer_prompt)
+        return {
+            '__next__': 'agent' if not response['approved'] else END,
+            'reviewer_approved': response['approved'],
+            'reviewer_feedback': response['reason'],
+            'messages': state['messages'] + [AIMessage(content=response['reason'])],
+        }
 
     def _create_agent(self) -> Runnable:
         self.logger.debug('initializing graph...')
@@ -63,12 +86,27 @@ class EvaAssistant:
         state_graph = StateGraph(AgentState)
         state_graph.add_node('agent', self.agent_node)
         state_graph.add_node('tools', tools_node)
+        state_graph.add_node('reviewer', self.reviewer_node)
+
+        state_graph.set_entry_point('agent')
+
         state_graph.add_conditional_edges(
             'agent',
             tools_condition,
+            {
+                "tools": "tools",
+                END: "reviewer",
+            }
         )
         state_graph.add_edge('tools', 'agent')
-        state_graph.set_entry_point('agent')
+        state_graph.add_conditional_edges(
+            'reviewer',
+            lambda state: state['__next__'],
+            {
+                END: END,
+                'agent': 'agent',
+            }
+        )
 
         self.logger.debug('graph initialized...')
         compiled_graph = state_graph.compile(checkpointer=self.checkpointer)

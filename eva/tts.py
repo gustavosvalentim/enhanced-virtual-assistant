@@ -9,12 +9,21 @@ import threading
 from piper import PiperVoice
 
 
+class TextToSpeechConfiguration:
+    enabled: bool
+    onnx_model_path: str
+
+    def __init__(self, enabled: bool, onnx_model_path: str):
+        self.enabled = enabled
+        self.onnx_model_path = onnx_model_path
+
+
 class TextToSpeech:
 
-    def __init__(self):
-        self.enabled = os.getenv('ENABLE_TTS', 'False').lower() in ('true', 'yes', '1')
+    def __init__(self, config: TextToSpeechConfiguration):
+        self.enabled = config.enabled
+        self._voice = self._load_voice(config.onnx_model_path)
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._voice = self._load_voice(os.getenv('TTS_ONNX_MODEL_PATH', ''))
 
     def _load_voice(self, model_path: str):
         if not model_path.strip() and self.enabled:
@@ -34,16 +43,13 @@ class TextToSpeech:
         data, fs = sf.read(wav_file_path, dtype='float32')
         sd.play(data, fs)
         sd.wait()
-
-    def _start_cleanup(self, wav_file_path: str):
-        remove_tmp_file_thread = threading.Thread(target=os.remove, args=(wav_file_path,))
-        remove_tmp_file_thread.start()
+        os.unlink(wav_file_path)
 
     def play(self, text: str):
         try:
             wav_file_path = self._synthesize_wav_file(text)
-            self._play_sound(wav_file_path)
-            self._start_cleanup(wav_file_path)
+            play_thread = threading.Thread(target=self._play_sound, args=(wav_file_path,))
+            play_thread.start()
         except Exception as err:
             self.enabled = False
             self._logger.error('Text to speech error %s', err, exc_info=True)

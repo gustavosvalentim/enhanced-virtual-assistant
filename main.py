@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from eva.assistant import EvaAssistant
-from eva.tts import TextToSpeech
+from eva.tts import TextToSpeech, TextToSpeechConfiguration
 
 
 load_dotenv()
@@ -11,9 +11,12 @@ load_dotenv()
 debug = os.getenv('DEBUG', 'False').lower() in ('true', 'yes', '1')
 logging.basicConfig(level=logging.DEBUG if debug else logging.ERROR)
 
-model_name = os.getenv('MODEL_NAME', 'openai:gpt-5-mini')
-assistant = EvaAssistant(model_name)
-tts = TextToSpeech()
+assistant = EvaAssistant(os.getenv('MODEL_NAME', 'openai:gpt-5-mini'))
+tts_config = TextToSpeechConfiguration(
+    enabled=os.getenv('ENABLE_TTS', 'False').lower() in ('true', 'yes', '1'),
+    onnx_model_path=os.getenv('TTS_ONNX_MODEL_PATH', ''),
+)
+tts = TextToSpeech(tts_config)
 
 
 def send_assistant_message(message: str):

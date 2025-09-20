@@ -10,7 +10,11 @@ wiki = Wikipedia(user_agent='Jarvis Agent', language='en')
 
 @tool
 def find_wikipedia_pages_by_subject(subject: str):
-    """Searches pages in Wikipedia by subject. """
+    """Searches pages in Wikipedia by subject.
+    
+    Parameters:
+        subject (str): The subject to search the pages
+    """
 
     logger.debug('Find pages for subject: %s', subject)
 
@@ -31,7 +35,11 @@ def find_wikipedia_pages_by_subject(subject: str):
 
 @tool
 def get_wikipedia_page_by_title(page_title: str) -> str:
-    """Get the content from a wikipedia page. """
+    """Get the content from a wikipedia page.
+    
+    Parameters:
+        page_title (str): The title of the page to get the contents from
+    """
 
     logger.debug('Getting page content for page title: %s', page_title)
 
